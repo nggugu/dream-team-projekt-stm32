@@ -92,7 +92,7 @@ int main(void)
 	  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_13, GPIO_PIN_RESET);
 	  HAL_Delay(500);
 
-	  WIFI_Init("PetarIvo", "perosero11122");
+	  WIFI_Init("", "");
 
 	  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_13, GPIO_PIN_SET);
 	  HAL_Delay(1000);
