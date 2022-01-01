@@ -6,7 +6,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2022 STMicroelectronics.
+  * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under BSD 3-Clause license,
@@ -21,7 +21,10 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
+#include <string.h>
 
+char RX_BUFFER[BUFSIZE];
+int RX_BUFFER_HEAD;
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart1;
@@ -51,7 +54,7 @@ void MX_USART1_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART1_Init 2 */
-
+  __HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
   /* USER CODE END USART1_Init 2 */
 
 }
@@ -115,7 +118,64 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 }
 
 /* USER CODE BEGIN 1 */
+void USER_UART_IRQHandler(UART_HandleTypeDef *huart) {
+	if (huart->Instance == USART1) {
+		uint8_t rx_data = __HAL_UART_FLUSH_DRREGISTER(huart);
 
+		if (RX_BUFFER_HEAD + 1 < BUFSIZE) {
+			RX_BUFFER[RX_BUFFER_HEAD++] = rx_data;
+		}
+	}
+}
+
+void USART1_SendChar(uint8_t c) {
+	HAL_UART_Transmit(&huart1, &c, sizeof(c), 10);
+}
+
+void USART1_SendString(char *s, uint16_t len) {
+	HAL_UART_Transmit(&huart1, (uint8_t *) s, len, 10);
+}
+
+uint8_t USART1_RxBufferContains(char *str) {
+	HAL_NVIC_DisableIRQ(USART1_IRQn);
+
+	uint8_t ret = 0;
+
+	char *c = strstr(RX_BUFFER, str);
+	if (c != 0x0) {
+		ret = 1;
+	}
+
+	HAL_NVIC_EnableIRQ(USART1_IRQn);
+
+	// Bez ovog delaya moze doci do greske u UART prijenosu kad se funkcija
+	// pozove puno puta zaredom u petlji, a prima se veca kolicina podataka.
+	// Nisam siguran zasto, ali moguce da je problem to sto funkcija u tom
+	// slucaju stalno onemogucuje prekide.
+	HAL_Delay(30);
+
+	return ret;
+}
+
+void USART1_ClearBuffer() {
+	HAL_NVIC_DisableIRQ(USART1_IRQn);
+
+	for(int i = 0; i < RX_BUFFER_HEAD; i++) {
+		RX_BUFFER[i] = 0;
+	}
+
+	RX_BUFFER_HEAD = 0;
+
+	HAL_NVIC_EnableIRQ(USART1_IRQn);
+}
+
+uint16_t USART1_GetBufferSize() {
+	return BUFSIZE;
+}
+
+void USART1_GetBufferContent(char *dest) {
+	strcpy(dest, RX_BUFFER);
+}
 /* USER CODE END 1 */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
