@@ -1,4 +1,4 @@
-# Preddiplomski projekt, Džapini anđeli - STM32
+# Preddiplomski projekt, [Džapini anđeli](https://www.youtube.com/watch?v=dQw4w9WgXcQ) - STM32
 Ovo je repozitorij za dio projekta koji se tiče STM32. <br>
 Link na repozitorij za web stranicu: <i> Ovdje se unosi link </i>
 
