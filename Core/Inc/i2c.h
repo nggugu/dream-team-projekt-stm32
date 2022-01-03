@@ -1,9 +1,9 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file    usart.h
+  * @file    i2c.h
   * @brief   This file contains all the function prototypes for
-  *          the usart.c file
+  *          the i2c.c file
   ******************************************************************************
   * @attention
   *
@@ -18,8 +18,8 @@
   */
 /* USER CODE END Header */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __USART_H__
-#define __USART_H__
+#ifndef __I2C_H__
+#define __I2C_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,30 +32,21 @@ extern "C" {
 
 /* USER CODE END Includes */
 
-extern UART_HandleTypeDef huart1;
+extern I2C_HandleTypeDef hi2c3;
 
 /* USER CODE BEGIN Private defines */
-#define BUFSIZE 500
+
 /* USER CODE END Private defines */
 
-void MX_USART1_UART_Init(void);
+void MX_I2C3_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-extern char RX_BUFFER[BUFSIZE];
-extern int RX_BUFFER_HEAD;
-extern uint8_t rx_data;
 
-void USART1_SendChar(uint8_t c);
-void USART1_SendString(char *s, uint16_t len);
-uint8_t USART1_RxBufferContains(char *str);
-void USART1_ClearBuffer();
-uint16_t USART1_GetBufferContentLength();
-void USART1_GetBufferContent(char *dest);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __USART_H__ */
+#endif /* __I2C_H__ */
 
