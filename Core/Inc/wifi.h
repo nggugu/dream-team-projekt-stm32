@@ -8,5 +8,5 @@
 
 void WIFI_Init(char *ssid, char *pwd);
 void WIFI_SendHttpGetRequest(char *hostname, char *path, char *response);
-
+uint8_t WIFI_SendRequestWithParams(char *hostname, char *path, float temp, float moisture, float humidity, float waterLevel);
 #endif /* INC_WIFI_H_ */

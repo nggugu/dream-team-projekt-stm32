@@ -104,9 +104,7 @@ int main(void)
   HAL_GPIO_WritePin(GPIOG, GPIO_PIN_13, GPIO_PIN_RESET);
   HAL_Delay(1000);
 
-  char res[300];
-  WIFI_SendHttpGetRequest("ip.jsontest.com", "/", res);
-
+  uint8_t res = WIFI_SendRequestWithParams("ekantica.herokuapp.com", "/data", 20, 95, 95, 95);
 
   /* Initialise BME280 sensor*/
 

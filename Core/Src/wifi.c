@@ -52,10 +52,62 @@ void WIFI_SendHttpGetRequest(char *hostname, char *path, char *response) {
 	while(!USART1_RxBufferContains("OK\r\n")) ;
 	USART1_ClearBuffer();
 
+	HAL_Delay(1000);
+
 	// znak } oznacava kraj odgovora jer ocekujemo da cemo dobiti JSON u tijelu
 	while(!USART1_RxBufferContains("}\n")) ;
 
 	USART1_GetBufferContent(response);
 }
 
+uint8_t WIFI_SendRequestWithParams(char *hostname, char *path, float temp, float moisture, float humidity, float waterLevel) {
+	USART1_ClearBuffer();
 
+	char cipstart_cmd[strlen(hostname) + 26];
+	sprintf(cipstart_cmd, "AT+CIPSTART=\"TCP\",\"%s\",80\r\n", hostname);
+
+	USART1_SendString(cipstart_cmd, (uint16_t) strlen(cipstart_cmd));
+	while(!USART1_RxBufferContains("OK\r\n")) ;
+	USART1_ClearBuffer();
+
+	char req[strlen(path) + strlen(hostname) + 4 * 6 + strlen("GET ?instant_temperature=&instant_moisture=&instant_humidity=&instant_water= HTTP/1.1\r\nHost: \r\n\r\n")];
+	sprintf(req, "GET %s?instant_temperature=%.0f&instant_moisture=%.0f&instant_humidity=%.0f&instant_water=%.0f HTTP/1.1\r\nHost: %s\r\n\r\n", \
+			path, temp, moisture, humidity, waterLevel, hostname);
+
+	char send_cmd[17];
+	sprintf(send_cmd, "AT+CIPSEND=%d\r\n", strlen(req));
+
+	USART1_SendString(send_cmd, strlen(send_cmd));
+	while(!USART1_RxBufferContains("OK\r\n")) ;
+	USART1_ClearBuffer();
+
+	// glupo rjesenje jer esp ne moze primiti vise od 120 bajta odjednom
+	if (strlen(req) >= 120) {
+		USART1_SendString(req, 115);
+		USART1_SendString(req + 115, strlen(req + 115));
+	} else {
+		USART1_SendString(req, strlen(req));
+	}
+	while(!USART1_RxBufferContains("OK\r\n")) ;
+	USART1_ClearBuffer();
+
+	/*
+	 * Bez ovog delaya bude problema kada se prima duzi string preko UART-a,
+	 * kao sto je HTTP odgovor (ne primi se cijeli string, nego zapne negdje putem).
+	 * Ne znam u cemu je tocno problem, ali moguce da je do toga sto funkcija RxBufferContains
+	 * stalno onemogucuje prekide kada se poziva u petlji.
+	 *
+	 */
+	HAL_Delay(1000);
+
+	while(!(USART1_RxBufferContains("True") || USART1_RxBufferContains("False"))) ;
+
+	uint8_t ret = 0;
+	if (USART1_RxBufferContains("True")) {
+		ret = 1;
+	}
+
+	USART1_ClearBuffer();
+
+	return ret;
+}

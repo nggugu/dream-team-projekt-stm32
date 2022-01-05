@@ -148,12 +148,6 @@ uint8_t USART1_RxBufferContains(char *str) {
 
 	HAL_NVIC_EnableIRQ(USART1_IRQn);
 
-	// Bez ovog delaya moze doci do greske u UART prijenosu kad se funkcija
-	// pozove puno puta zaredom u petlji, a prima se veca kolicina podataka.
-	// Nisam siguran zasto, ali moguce da je problem to sto funkcija u tom
-	// slucaju stalno onemogucuje prekide.
-	HAL_Delay(30);
-
 	return ret;
 }
 
