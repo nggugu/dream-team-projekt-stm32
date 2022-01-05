@@ -4,10 +4,12 @@
 void WIFI_Init(char *ssid, char *pwd) {
 	USART1_ClearBuffer();
 
-	// reset
-	USART1_SendString("AT+RST\r\n", (uint16_t) strlen("AT+RST\r\n"));
-	HAL_Delay(7000);
-	USART1_ClearBuffer();
+	// reset ESP modula - uglavnom nije potreban, ali ako bude potrebe,
+	// otkomentiraj sljedece linije:
+
+	// USART1_SendString("AT+RST\r\n", (uint16_t) strlen("AT+RST\r\n"));
+	// HAL_Delay(7000);
+	// USART1_ClearBuffer();
 
 	// iskljuci echo (radi lakseg debugginga)
 	USART1_SendString("ATE0\r\n", (uint16_t) strlen("ATE0\r\n"));
@@ -28,7 +30,7 @@ void WIFI_Init(char *ssid, char *pwd) {
 
 }
 
-void WIFI_SendHttpGetRequest(char *hostname, char *path, char *response) {
+void WIFI_SendHttpGetRequest(char *hostname, char *path, char *jsonResponse) {
 	USART1_ClearBuffer();
 
 	char cipstart_cmd[strlen(hostname) + 26];
@@ -57,7 +59,7 @@ void WIFI_SendHttpGetRequest(char *hostname, char *path, char *response) {
 	// znak } oznacava kraj odgovora jer ocekujemo da cemo dobiti JSON u tijelu
 	while(!USART1_RxBufferContains("}\n")) ;
 
-	USART1_GetBufferContent(response);
+	USART1_GetBufferContent(jsonResponse);
 }
 
 uint8_t WIFI_SendRequestWithParams(char *hostname, char *path, float temp, float moisture, float humidity, float waterLevel) {
@@ -81,19 +83,17 @@ uint8_t WIFI_SendRequestWithParams(char *hostname, char *path, float temp, float
 	while(!USART1_RxBufferContains("OK\r\n")) ;
 	USART1_ClearBuffer();
 
-	// glupo rjesenje jer esp ne moze primiti vise od 120 bajta odjednom
-	if (strlen(req) >= 120) {
-		USART1_SendString(req, 115);
-		USART1_SendString(req + 115, strlen(req + 115));
-	} else {
-		USART1_SendString(req, strlen(req));
+	// ovo je potrebno jer ESP iz nekog razloga ne moze primiti vise od 120 bajta odjednom
+	for(int i = 0; i < strlen(req); i++) {
+		USART1_SendChar(req[i]);
 	}
+
 	while(!USART1_RxBufferContains("OK\r\n")) ;
 	USART1_ClearBuffer();
 
 	/*
 	 * Bez ovog delaya bude problema kada se prima duzi string preko UART-a,
-	 * kao sto je HTTP odgovor (ne primi se cijeli string, nego zapne negdje putem).
+	 * kao sto je HTTP odgovor (ne primi se cijeli string, nego zapne negdje na pola).
 	 * Ne znam u cemu je tocno problem, ali moguce da je do toga sto funkcija RxBufferContains
 	 * stalno onemogucuje prekide kada se poziva u petlji.
 	 *
