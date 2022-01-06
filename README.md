@@ -13,6 +13,9 @@ Vrijednosti mjerenja su dostupne u strukturi senzora i nalaze se u varijablama:
 * hum (vlažnost zraka)
 
 <i> Napomena: funkcije `BME280_Initialise` i `BME280_PerformMeasurements` vraćaju broj pogrešaka koje su se dogodile tijekom komunikacije sa senzorom u formatu `uint8_t`. </i>
+
+## Upute za korištenje senzora za vlagu tla
+<b> Senzor još nije spreman za upotrebu. Treba ga kalibrirati. </b>
   
 ## Korisni linkovi
 I2C komunikacija na STM32: https://www.youtube.com/watch?v=cvmQNTVJrzs <br>
