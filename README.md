@@ -16,6 +16,25 @@ Vrijednosti mjerenja su dostupne u strukturi senzora i nalaze se u varijablama:
 
 ## Upute za korištenje senzora za vlagu tla
 <b> Senzor još nije spreman za upotrebu. Treba ga kalibrirati. </b>
+
+## Upute za korištenje ESP8266 WiFi drivera
+
+### Spajanje ESP-01 modula
+Slika rasporeda pinova na ESP-01 pločici može se naći [ovdje](https://www.makerlab-electronics.com/?attachment_id=11461). <br>
+Pinove je potrebno spojiti na sljedeći način (u formatu ESP-01 pin <-> STM32 Discovery pin):<br>
+RXD <-> PB6 (TX) <br>
+VCC <-> 3V <br>
+CHPD <-> 3V <br>
+GND <-> GND <br>
+TXD <-> PB7 (RX) <br>
+
+### Korištenje drivera
+1. Prije početka rada s WiFi-jem pozvati funkciju: `int8_t WIFI_Init(char *ssid, char *pwd)` Parametri funkcije su ime i lozinka mreže na koju se treba spojiti. Povratna vrijednost je 0 ako nije bilo grešaka i -1 ako je došlo do greške. <br>
+<i><b>Napomena:</b> ESP nema mogućnost spajanja na eduroam mrežu s trenutnim firmware-om. Ako radite na faksu, najbolje je spojiti se na AP od mobitela.</i>
+
+2. Za slanje podataka na server koristiti funkciju: `int8_t WIFI_SendRequestWithParams(char *hostname, char *path, double temp, double moisture, double humidity, double waterLevel)` Hostname servera je ekantica.herokuapp.com, bez sheme na početku (http:// ili https://). Path za slanje podataka je /data. Ostali parametri su vrijednosti očitanja senzora koje se žele poslati, a prilikom slanja zahtjeva zaokružuju se na dvije decimale. Funkcija na temelju odgovora servera vraća 0 ako nije potrebno uključiti pumpu, a 1 ako jest. Ako je došlo do pogreške, povratna vrijednost je -1.
+
+<b>VAŽNO:</b> Budući da komunikacija s ESP-om funkcionira na principu slanja komande i zatim čekanja odgovora, moguće je da navedene funkcije zapnu u beskonačnoj petlji ako dođe do nepredviđene greške, npr. ako se dogodi prekid komunikacije s ESP-om ili je nemoguće parsirati HTTP odgovor servera. Kako bi se lakše uočilo da je došlo do zastoja, predlažem da se nekako signalizira uspješno izvršavanje svake funkcije, npr. paljenjem LED-ice ili ispisom na LCD nakon što je funkcija vratila vrijednost. Ako takav signal izostane, tada je moguće zaključiti da se dogodila beskonačna petlja.
   
 ## Korisni linkovi
 I2C komunikacija na STM32: https://www.youtube.com/watch?v=cvmQNTVJrzs <br>
