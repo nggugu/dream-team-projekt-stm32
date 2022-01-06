@@ -97,8 +97,10 @@ int main(void)
   MX_I2C3_Init();
   MX_ADC3_Init();
   /* USER CODE BEGIN 2 */
-  WIFI_Init("PetarIvo", "perosero11122");
-  WIFI_SendRequestWithParams("ekantica.herokuapp.com", "/data", 20, 95, 95, 95);
+
+  // WIFI_Init("", "");
+  // WIFI_SendRequestWithParams("ekantica.herokuapp.com", "/data", 20, 95, 95, 95);
+
   /* Initialise BME280 sensor*/
 
   /* Initialise soil humidity sensor */
