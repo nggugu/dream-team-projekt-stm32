@@ -133,7 +133,14 @@ void USART1_SendChar(uint8_t c) {
 }
 
 void USART1_SendString(char *s, uint16_t len) {
-	HAL_UART_Transmit(&huart1, (uint8_t *) s, len, 10);
+	if(len > 115) {
+		// ovo je potrebno jer ESP iz nekog razloga ne moze primiti vise od 120 bajta odjednom
+		for(int i = 0; i < len; i++) {
+			USART1_SendChar(s[i]);
+		}
+	} else {
+		HAL_UART_Transmit(&huart1, (uint8_t *) s, len, 10);
+	}
 }
 
 uint8_t USART1_RxBufferContains(char *str) {

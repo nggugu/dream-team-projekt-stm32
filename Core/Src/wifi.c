@@ -83,11 +83,7 @@ uint8_t WIFI_SendRequestWithParams(char *hostname, char *path, float temp, float
 	while(!USART1_RxBufferContains("OK\r\n")) ;
 	USART1_ClearBuffer();
 
-	// ovo je potrebno jer ESP iz nekog razloga ne moze primiti vise od 120 bajta odjednom
-	for(int i = 0; i < strlen(req); i++) {
-		USART1_SendChar(req[i]);
-	}
-
+	USART1_SendString(req, strlen(req));
 	while(!USART1_RxBufferContains("OK\r\n")) ;
 	USART1_ClearBuffer();
 
