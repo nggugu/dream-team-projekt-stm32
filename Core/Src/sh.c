@@ -11,6 +11,12 @@
 #include "sh.h"
 
 /*
+ * DEFINES
+ */
+#define DRY_SOIL	3455
+#define WET_SOIL	1462
+
+/*
  * INITIALISATION
  */
 void SH_init(SH *dev, ADC_HandleTypeDef *ADC_handle) {
@@ -34,12 +40,12 @@ uint8_t SH_ReadData(SH *dev) {
 	HAL_ADC_Stop(dev->ADC_handle);
 	errNum += (status != HAL_OK);
 
-	if (dev->ADC_data >= 3155) {
+	if (dev->ADC_data >= DRY_SOIL) {
 		dev->soilHumidity = 0.0;
-	} else if (dev->ADC_data <= 986) {
+	} else if (dev->ADC_data <= WET_SOIL) {
 		dev->soilHumidity = 100.0;
 	} else {
-		dev->soilHumidity = (-50.0/1101.0)*(dev->ADC_data - 3155.0);
+		dev->soilHumidity = ((100.0)/((double) WET_SOIL - (double) DRY_SOIL))*((double) (dev->ADC_data) - (double) DRY_SOIL);
 	}
 
 	return errNum;
