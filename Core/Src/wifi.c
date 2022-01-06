@@ -79,7 +79,7 @@ void WIFI_SendHttpGetRequest(char *hostname, char *path, char *jsonResponse) {
 	USART1_GetBufferContent(jsonResponse);
 }
 
-int8_t WIFI_SendRequestWithParams(char *hostname, char *path, float temp, float moisture, float humidity, float waterLevel) {
+int8_t WIFI_SendRequestWithParams(char *hostname, char *path, double temp, double moisture, double humidity, double waterLevel) {
 	USART1_ClearBuffer();
 
 	char cipstart_cmd[strlen(hostname) + 26];
@@ -94,8 +94,8 @@ int8_t WIFI_SendRequestWithParams(char *hostname, char *path, float temp, float 
 	}
 	USART1_ClearBuffer();
 
-	char req[strlen(path) + strlen(hostname) + 4 * 6 + strlen("GET ?instant_temperature=&instant_moisture=&instant_humidity=&instant_water= HTTP/1.1\r\nHost: \r\n\r\n")];
-	sprintf(req, "GET %s?instant_temperature=%.0f&instant_moisture=%.0f&instant_humidity=%.0f&instant_water=%.0f HTTP/1.1\r\nHost: %s\r\n\r\n", \
+	char req[strlen(path) + strlen(hostname) + 4 * 5 + strlen("GET ?instant_temperature=&instant_moisture=&instant_humidity=&instant_water= HTTP/1.1\r\nHost: \r\n\r\n")];
+	sprintf(req, "GET %s?instant_temperature=%.2lf&instant_moisture=%.2lf&instant_humidity=%.2lf&instant_water=%.2lf HTTP/1.1\r\nHost: %s\r\n\r\n", \
 			path, temp, moisture, humidity, waterLevel, hostname);
 
 	char send_cmd[17];
