@@ -19,6 +19,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
 #include "i2c.h"
 #include "usart.h"
 #include "gpio.h"
@@ -30,6 +31,7 @@
 
 #include "wifi.h"
 #include "bme280.h"
+#include "sh.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,7 +50,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+SH acc;
+uint8_t errNum = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -92,8 +95,9 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   MX_I2C3_Init();
+  MX_ADC3_Init();
   /* USER CODE BEGIN 2 */
-
+  /*
   HAL_GPIO_WritePin(GPIOG, GPIO_PIN_13, GPIO_PIN_RESET);
   HAL_Delay(500);
 
@@ -105,15 +109,19 @@ int main(void)
   HAL_Delay(1000);
 
   uint8_t res = WIFI_SendRequestWithParams("ekantica.herokuapp.com", "/data", 20, 95, 95, 95);
-
+  */
   /* Initialise BME280 sensor*/
 
+  /* Initialise soil humidity sensor */
+  SH_init(&acc, &hadc3);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  errNum = SH_ReadData(&acc);
+	  HAL_Delay(500);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
