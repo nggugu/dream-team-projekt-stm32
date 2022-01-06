@@ -98,18 +98,6 @@ int main(void)
   MX_ADC3_Init();
   /* USER CODE BEGIN 2 */
 
-  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_13, GPIO_PIN_RESET);
-  HAL_Delay(500);
-
-  WIFI_Init("PetarIvo", "perosero11122");
-
-  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_13, GPIO_PIN_SET);
-  HAL_Delay(1000);
-  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_13, GPIO_PIN_RESET);
-  HAL_Delay(1000);
-
-  uint8_t res = WIFI_SendRequestWithParams("ekantica.herokuapp.com", "/data", 20, 95, 95, 95);
-
   /* Initialise BME280 sensor*/
 
   /* Initialise soil humidity sensor */

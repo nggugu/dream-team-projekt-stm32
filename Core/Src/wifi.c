@@ -1,7 +1,7 @@
 #include "wifi.h"
 
 
-void WIFI_Init(char *ssid, char *pwd) {
+int8_t WIFI_Init(char *ssid, char *pwd) {
 	USART1_ClearBuffer();
 
 	// reset ESP modula - uglavnom nije potreban, ali ako bude potrebe,
@@ -13,20 +13,37 @@ void WIFI_Init(char *ssid, char *pwd) {
 
 	// iskljuci echo (radi lakseg debugginga)
 	USART1_SendString("ATE0\r\n", (uint16_t) strlen("ATE0\r\n"));
-	while(!USART1_RxBufferContains("OK\r\n")) ;
+
+	while(!(USART1_RxBufferContains("OK\r\n") || USART1_RxBufferContains("ERROR\r\n"))) ;
+	if(USART1_RxBufferContains("ERROR\r\n")) {
+		USART1_ClearBuffer();
+		return -1;
+	}
 	USART1_ClearBuffer();
 
 	// postavi Station mod
 	USART1_SendString("AT+CWMODE=1\r\n", (uint16_t) strlen("AT+CWMODE=1\r\n"));
-	while(!USART1_RxBufferContains("OK\r\n")) ;
+
+	while(!(USART1_RxBufferContains("OK\r\n") || USART1_RxBufferContains("ERROR\r\n"))) ;
+	if(USART1_RxBufferContains("ERROR\r\n")) {
+		USART1_ClearBuffer();
+		return -1;
+	}
 	USART1_ClearBuffer();
 
 	// spoji se na mrezu
 	char cwjap_cmd[strlen(ssid) + strlen(pwd) + 17];
 	sprintf(cwjap_cmd, "AT+CWJAP=\"%s\",\"%s\"\r\n", ssid, pwd);
 	USART1_SendString(cwjap_cmd, (uint16_t) strlen(cwjap_cmd));
-	while(!USART1_RxBufferContains("OK\r\n")) ;
+
+	while(!(USART1_RxBufferContains("OK\r\n") || USART1_RxBufferContains("FAIL\r\n"))) ;
+	if(USART1_RxBufferContains("FAIL\r\n")) {
+		USART1_ClearBuffer();
+		return -1;
+	}
 	USART1_ClearBuffer();
+
+	return 0;
 
 }
 
@@ -62,14 +79,19 @@ void WIFI_SendHttpGetRequest(char *hostname, char *path, char *jsonResponse) {
 	USART1_GetBufferContent(jsonResponse);
 }
 
-uint8_t WIFI_SendRequestWithParams(char *hostname, char *path, float temp, float moisture, float humidity, float waterLevel) {
+int8_t WIFI_SendRequestWithParams(char *hostname, char *path, float temp, float moisture, float humidity, float waterLevel) {
 	USART1_ClearBuffer();
 
 	char cipstart_cmd[strlen(hostname) + 26];
 	sprintf(cipstart_cmd, "AT+CIPSTART=\"TCP\",\"%s\",80\r\n", hostname);
 
 	USART1_SendString(cipstart_cmd, (uint16_t) strlen(cipstart_cmd));
-	while(!USART1_RxBufferContains("OK\r\n")) ;
+
+	while(!(USART1_RxBufferContains("OK\r\n") || USART1_RxBufferContains("ERROR\r\n"))) ;
+	if(USART1_RxBufferContains("ERROR\r\n")) {
+		USART1_ClearBuffer();
+		return -1;
+	}
 	USART1_ClearBuffer();
 
 	char req[strlen(path) + strlen(hostname) + 4 * 6 + strlen("GET ?instant_temperature=&instant_moisture=&instant_humidity=&instant_water= HTTP/1.1\r\nHost: \r\n\r\n")];
@@ -80,11 +102,21 @@ uint8_t WIFI_SendRequestWithParams(char *hostname, char *path, float temp, float
 	sprintf(send_cmd, "AT+CIPSEND=%d\r\n", strlen(req));
 
 	USART1_SendString(send_cmd, strlen(send_cmd));
-	while(!USART1_RxBufferContains("OK\r\n")) ;
+
+	while(!(USART1_RxBufferContains("OK\r\n") || USART1_RxBufferContains("ERROR\r\n"))) ;
+	if(USART1_RxBufferContains("ERROR\r\n")) {
+		USART1_ClearBuffer();
+		return -1;
+	}
 	USART1_ClearBuffer();
 
 	USART1_SendString(req, strlen(req));
-	while(!USART1_RxBufferContains("OK\r\n")) ;
+
+	while(!(USART1_RxBufferContains("OK\r\n") || USART1_RxBufferContains("ERROR\r\n"))) ;
+	if(USART1_RxBufferContains("ERROR\r\n")) {
+		USART1_ClearBuffer();
+		return -1;
+	}
 	USART1_ClearBuffer();
 
 	/*
