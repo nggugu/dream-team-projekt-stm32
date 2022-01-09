@@ -14,7 +14,7 @@
  * DEFINES
  */
 #define DRY_SOIL	3455
-#define WET_SOIL	1462
+#define WET_SOIL	1366
 
 /*
  * INITIALISATION
