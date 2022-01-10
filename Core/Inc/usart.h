@@ -51,6 +51,8 @@ uint8_t USART1_RxBufferContains(char *str);
 void USART1_ClearBuffer();
 uint16_t USART1_GetBufferContentLength();
 void USART1_GetBufferContent(char *dest);
+int8_t USART1_WaitFor(char *successMsg, char *errorMsg, uint16_t timeout);
+int8_t USART1_WaitForTrueOrFalse(char *errorMsg, uint16_t timeout);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

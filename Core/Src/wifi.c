@@ -14,8 +14,7 @@ int8_t WIFI_Init(char *ssid, char *pwd) {
 	// iskljuci echo (radi lakseg debugginga)
 	USART1_SendString("ATE0\r\n", (uint16_t) strlen("ATE0\r\n"));
 
-	while(!(USART1_RxBufferContains("OK\r\n") || USART1_RxBufferContains("ERROR\r\n"))) ;
-	if(USART1_RxBufferContains("ERROR\r\n")) {
+	if (USART1_WaitFor("OK\r\n", "ERROR\r\n", 5000) == -1) {
 		USART1_ClearBuffer();
 		return -1;
 	}
@@ -24,8 +23,7 @@ int8_t WIFI_Init(char *ssid, char *pwd) {
 	// postavi Station mod
 	USART1_SendString("AT+CWMODE=1\r\n", (uint16_t) strlen("AT+CWMODE=1\r\n"));
 
-	while(!(USART1_RxBufferContains("OK\r\n") || USART1_RxBufferContains("ERROR\r\n"))) ;
-	if(USART1_RxBufferContains("ERROR\r\n")) {
+	if (USART1_WaitFor("OK\r\n", "ERROR\r\n", 1000) == -1) {
 		USART1_ClearBuffer();
 		return -1;
 	}
@@ -36,8 +34,7 @@ int8_t WIFI_Init(char *ssid, char *pwd) {
 	sprintf(cwjap_cmd, "AT+CWJAP=\"%s\",\"%s\"\r\n", ssid, pwd);
 	USART1_SendString(cwjap_cmd, (uint16_t) strlen(cwjap_cmd));
 
-	while(!(USART1_RxBufferContains("OK\r\n") || USART1_RxBufferContains("FAIL\r\n"))) ;
-	if(USART1_RxBufferContains("FAIL\r\n")) {
+	if (USART1_WaitFor("OK\r\n", "FAIL\r\n", 10000) == -1) {
 		USART1_ClearBuffer();
 		return -1;
 	}
@@ -87,15 +84,14 @@ int8_t WIFI_SendRequestWithParams(char *hostname, char *path, double temp, doubl
 
 	USART1_SendString(cipstart_cmd, (uint16_t) strlen(cipstart_cmd));
 
-	while(!(USART1_RxBufferContains("OK\r\n") || USART1_RxBufferContains("ERROR\r\n"))) ;
-	if(USART1_RxBufferContains("ERROR\r\n")) {
+	if (USART1_WaitFor("OK\r\n", "ERROR\r\n", 1000) == -1) {
 		USART1_ClearBuffer();
 		return -1;
 	}
 	USART1_ClearBuffer();
 
 	char req[strlen(path) + strlen(hostname) + 4 * 5 + strlen("GET ?instant_temperature=&instant_moisture=&instant_humidity=&instant_water= HTTP/1.1\r\nHost: \r\n\r\n")];
-	sprintf(req, "GET %s?instant_temperature=%.2lf&instant_moisture=%.2lf&instant_humidity=%.2lf&instant_water=%.2lf HTTP/1.1\r\nHost: %s\r\n\r\n", \
+	sprintf(req, "GET %s?instant_temperature=%.0lf&instant_moisture=%.0lf&instant_humidity=%.0lf&instant_water=%.0lf HTTP/1.1\r\nHost: %s\r\n\r\n", \
 			path, temp, moisture, humidity, waterLevel, hostname);
 
 	char send_cmd[17];
@@ -103,8 +99,7 @@ int8_t WIFI_SendRequestWithParams(char *hostname, char *path, double temp, doubl
 
 	USART1_SendString(send_cmd, strlen(send_cmd));
 
-	while(!(USART1_RxBufferContains("OK\r\n") || USART1_RxBufferContains("ERROR\r\n"))) ;
-	if(USART1_RxBufferContains("ERROR\r\n")) {
+	if (USART1_WaitFor("OK\r\n", "ERROR\r\n", 1000) == -1) {
 		USART1_ClearBuffer();
 		return -1;
 	}
@@ -112,8 +107,7 @@ int8_t WIFI_SendRequestWithParams(char *hostname, char *path, double temp, doubl
 
 	USART1_SendString(req, strlen(req));
 
-	while(!(USART1_RxBufferContains("OK\r\n") || USART1_RxBufferContains("ERROR\r\n"))) ;
-	if(USART1_RxBufferContains("ERROR\r\n")) {
+	if (USART1_WaitFor("OK\r\n", "ERROR\r\n", 1000) == -1) {
 		USART1_ClearBuffer();
 		return -1;
 	}
@@ -128,12 +122,7 @@ int8_t WIFI_SendRequestWithParams(char *hostname, char *path, double temp, doubl
 	 */
 	HAL_Delay(1000);
 
-	while(!(USART1_RxBufferContains("True") || USART1_RxBufferContains("False"))) ;
-
-	uint8_t ret = 0;
-	if (USART1_RxBufferContains("True")) {
-		ret = 1;
-	}
+	int8_t ret = USART1_WaitForTrueOrFalse("ERROR\r\n", 10000);
 
 	USART1_ClearBuffer();
 

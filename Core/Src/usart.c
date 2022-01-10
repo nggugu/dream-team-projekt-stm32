@@ -177,4 +177,38 @@ uint16_t USART1_GetBufferSize() {
 void USART1_GetBufferContent(char *dest) {
 	strcpy(dest, RX_BUFFER);
 }
+
+int8_t USART1_WaitFor(char *successMsg, char *errorMsg, uint16_t timeout) {
+	uint32_t start = HAL_GetTick();
+	uint32_t diff = 0;
+
+	while(!(USART1_RxBufferContains(successMsg) || USART1_RxBufferContains(errorMsg) || (diff > timeout))) {
+		diff = HAL_GetTick() - start;
+	}
+
+	if(USART1_RxBufferContains(errorMsg) || diff > timeout) {
+		return -1;
+	}
+
+	return 0;
+
+}
+
+int8_t USART1_WaitForTrueOrFalse(char *errorMsg, uint16_t timeout) {
+	uint32_t start = HAL_GetTick();
+	uint32_t diff = 0;
+
+	while(!(USART1_RxBufferContains("True") || USART1_RxBufferContains("False") || USART1_RxBufferContains(errorMsg) || (diff > timeout))) {
+		diff = HAL_GetTick() - start;
+	}
+
+	if(USART1_RxBufferContains("True")) {
+		return 1;
+	} else if(USART1_RxBufferContains("False")) {
+		return 0;
+	}
+
+	return -1;
+
+}
 /* USER CODE END 1 */
