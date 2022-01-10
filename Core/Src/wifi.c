@@ -114,13 +114,17 @@ int8_t WIFI_SendRequestWithParams(char *hostname, char *path, double temp, doubl
 	USART1_ClearBuffer();
 
 	/*
-	 * Bez ovog delaya bude problema kada se prima duzi string preko UART-a,
+	 * Bez ovog delaya ispod bude problema kada se prima duzi string preko UART-a,
 	 * kao sto je HTTP odgovor (ne primi se cijeli string, nego zapne negdje na pola).
-	 * Ne znam u cemu je tocno problem, ali moguce da je do toga sto funkcija RxBufferContains
-	 * stalno onemogucuje prekide kada se poziva u petlji.
+	 * Ne znam u cemu je tocno problem, ali moguce da je do toga sto funkcija
+	 * USART1_RxBufferContains stalno onemogucuje prekide kada se poziva u petlji.
+	 *
+	 * Update: kada stavim da funkcija USART1_RxBufferContains ne onemogucuje prekide,
+	 * stvar radi i bez delaya. Doduse nisam siguran koliko je to pametno i hoce
+	 * li raditi bas u svakom slucaju.
 	 *
 	 */
-	HAL_Delay(1000);
+	// HAL_Delay(1000);
 
 	int8_t ret = USART1_WaitForTrueOrFalse("ERROR\r\n", 10000);
 

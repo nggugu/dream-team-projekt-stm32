@@ -144,7 +144,7 @@ void USART1_SendString(char *s, uint16_t len) {
 }
 
 uint8_t USART1_RxBufferContains(char *str) {
-	HAL_NVIC_DisableIRQ(USART1_IRQn);
+	// HAL_NVIC_DisableIRQ(USART1_IRQn);
 
 	uint8_t ret = 0;
 
@@ -153,7 +153,7 @@ uint8_t USART1_RxBufferContains(char *str) {
 		ret = 1;
 	}
 
-	HAL_NVIC_EnableIRQ(USART1_IRQn);
+	// HAL_NVIC_EnableIRQ(USART1_IRQn);
 
 	return ret;
 }

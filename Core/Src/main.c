@@ -98,8 +98,8 @@ int main(void)
   MX_ADC3_Init();
   /* USER CODE BEGIN 2 */
 
-  uint8_t err = WIFI_Init("TP-Link_Susac", "96752074");
-  uint8_t res = WIFI_SendRequestWithParams("ekantica.herokuapp.com", "/data", 20, 95, 95, 95);
+  // uint8_t err = WIFI_Init("", "");
+  // uint8_t res = WIFI_SendRequestWithParams("ekantica.herokuapp.com", "/data", 20, 100, 100, 100);
 
   /* Initialise BME280 sensor*/
 
