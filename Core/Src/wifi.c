@@ -44,38 +44,6 @@ int8_t WIFI_Init(char *ssid, char *pwd) {
 
 }
 
-void WIFI_SendHttpGetRequest(char *hostname, char *path, char *jsonResponse) {
-	USART1_ClearBuffer();
-
-	char cipstart_cmd[strlen(hostname) + 26];
-	sprintf(cipstart_cmd, "AT+CIPSTART=\"TCP\",\"%s\",80\r\n", hostname);
-
-	USART1_SendString(cipstart_cmd, (uint16_t) strlen(cipstart_cmd));
-	while(!USART1_RxBufferContains("OK\r\n")) ;
-	USART1_ClearBuffer();
-
-	char req[strlen(hostname) + strlen(path) + 26];
-	sprintf(req, "GET %s HTTP/1.1\r\nHost: %s\r\n\r\n", path, hostname);
-
-	char send_cmd[17];
-	sprintf(send_cmd, "AT+CIPSEND=%d\r\n", strlen(req));
-
-	USART1_SendString(send_cmd, strlen(send_cmd));
-	while(!USART1_RxBufferContains("OK\r\n")) ;
-	USART1_ClearBuffer();
-
-	USART1_SendString(req, strlen(req));
-	while(!USART1_RxBufferContains("OK\r\n")) ;
-	USART1_ClearBuffer();
-
-	HAL_Delay(1000);
-
-	// znak } oznacava kraj odgovora jer ocekujemo da cemo dobiti JSON u tijelu
-	while(!USART1_RxBufferContains("}\n")) ;
-
-	USART1_GetBufferContent(jsonResponse);
-}
-
 int8_t WIFI_SendRequestWithParams(char *hostname, char *path, double temp, double moisture, double humidity, double waterLevel) {
 	USART1_ClearBuffer();
 
@@ -112,19 +80,6 @@ int8_t WIFI_SendRequestWithParams(char *hostname, char *path, double temp, doubl
 		return -1;
 	}
 	USART1_ClearBuffer();
-
-	/*
-	 * Bez ovog delaya ispod bude problema kada se prima duzi string preko UART-a,
-	 * kao sto je HTTP odgovor (ne primi se cijeli string, nego zapne negdje na pola).
-	 * Ne znam u cemu je tocno problem, ali moguce da je do toga sto funkcija
-	 * USART1_RxBufferContains stalno onemogucuje prekide kada se poziva u petlji.
-	 *
-	 * Update: kada stavim da funkcija USART1_RxBufferContains ne onemogucuje prekide,
-	 * stvar radi i bez delaya. Doduse nisam siguran koliko je to pametno i hoce
-	 * li raditi bas u svakom slucaju.
-	 *
-	 */
-	// HAL_Delay(1000);
 
 	int8_t ret = USART1_WaitForTrueOrFalse("ERROR\r\n", 10000);
 

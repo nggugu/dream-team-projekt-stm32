@@ -35,7 +35,7 @@ extern "C" {
 extern UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN Private defines */
-#define BUFSIZE 500
+#define BUFSIZE 512
 /* USER CODE END Private defines */
 
 void MX_USART1_UART_Init(void);
@@ -47,9 +47,7 @@ extern uint8_t rx_data;
 
 void USART1_SendChar(uint8_t c);
 void USART1_SendString(char *s, uint16_t len);
-uint8_t USART1_RxBufferContains(char *str);
 void USART1_ClearBuffer();
-uint16_t USART1_GetBufferContentLength();
 void USART1_GetBufferContent(char *dest);
 int8_t USART1_WaitFor(char *successMsg, char *errorMsg, uint16_t timeout);
 int8_t USART1_WaitForTrueOrFalse(char *errorMsg, uint16_t timeout);

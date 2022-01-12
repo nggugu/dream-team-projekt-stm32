@@ -143,21 +143,6 @@ void USART1_SendString(char *s, uint16_t len) {
 	}
 }
 
-uint8_t USART1_RxBufferContains(char *str) {
-	// HAL_NVIC_DisableIRQ(USART1_IRQn);
-
-	uint8_t ret = 0;
-
-	char *c = strstr(RX_BUFFER, str);
-	if (c != 0x0) {
-		ret = 1;
-	}
-
-	// HAL_NVIC_EnableIRQ(USART1_IRQn);
-
-	return ret;
-}
-
 void USART1_ClearBuffer() {
 	HAL_NVIC_DisableIRQ(USART1_IRQn);
 
@@ -184,11 +169,15 @@ int8_t USART1_WaitFor(char *successMsg, char *errorMsg, uint16_t timeout) {
 	uint32_t start = HAL_GetTick();
 	uint32_t diff = 0;
 
-	while(!(USART1_RxBufferContains(successMsg) || USART1_RxBufferContains(errorMsg) || (diff > timeout))) {
+	char bufcopy[BUFSIZE];
+	USART1_GetBufferContent(bufcopy);
+
+	while(!(strstr(bufcopy, successMsg) || strstr(bufcopy, errorMsg) || (diff > timeout))) {
 		diff = HAL_GetTick() - start;
+		USART1_GetBufferContent(bufcopy);
 	}
 
-	if(USART1_RxBufferContains(errorMsg) || diff > timeout) {
+	if(strstr(bufcopy, errorMsg) || diff > timeout) {
 		return -1;
 	}
 
