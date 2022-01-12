@@ -175,7 +175,9 @@ uint16_t USART1_GetBufferSize() {
 }
 
 void USART1_GetBufferContent(char *dest) {
+	HAL_NVIC_DisableIRQ(USART1_IRQn);
 	strcpy(dest, RX_BUFFER);
+	HAL_NVIC_EnableIRQ(USART1_IRQn);
 }
 
 int8_t USART1_WaitFor(char *successMsg, char *errorMsg, uint16_t timeout) {
@@ -198,13 +200,17 @@ int8_t USART1_WaitForTrueOrFalse(char *errorMsg, uint16_t timeout) {
 	uint32_t start = HAL_GetTick();
 	uint32_t diff = 0;
 
-	while(!(USART1_RxBufferContains("True") || USART1_RxBufferContains("False") || USART1_RxBufferContains(errorMsg) || (diff > timeout))) {
+	char bufcopy[BUFSIZE];
+	USART1_GetBufferContent(bufcopy);
+
+	while(!(strstr(bufcopy, "True") || strstr(bufcopy, "False") || strstr(bufcopy, errorMsg) || (diff > timeout))) {
 		diff = HAL_GetTick() - start;
+		USART1_GetBufferContent(bufcopy);
 	}
 
-	if(USART1_RxBufferContains("True")) {
+	if(strstr(bufcopy, "True")) {
 		return 1;
-	} else if(USART1_RxBufferContains("False")) {
+	} else if(strstr(bufcopy, "False")) {
 		return 0;
 	}
 
