@@ -34,11 +34,15 @@ extern "C" {
 
 /* USER CODE BEGIN Private defines */
 
+#define PUMP_PinNumber	GPIO_PIN_2
+
 /* USER CODE END Private defines */
 
 void MX_GPIO_Init(void);
 
 /* USER CODE BEGIN Prototypes */
+
+void gpio_pump_state(uint8_t state);
 
 /* USER CODE END Prototypes */
 
