@@ -21,6 +21,7 @@
 #include "main.h"
 #include "adc.h"
 #include "i2c.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -96,6 +97,8 @@ int main(void)
   MX_USART1_UART_Init();
   MX_I2C3_Init();
   MX_ADC3_Init();
+  MX_TIM2_Init();
+  HAL_TIM_Base_Start_IT(&htim2);
   /* USER CODE BEGIN 2 */
 
   // uint8_t err = WIFI_Init("", "");
@@ -164,6 +167,14 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void Mjerenje_Vrijednosti(){
+
+}
+
+void Zalij_Ako_Je_Suho(){
+
+}
 
 /* USER CODE END 4 */
 

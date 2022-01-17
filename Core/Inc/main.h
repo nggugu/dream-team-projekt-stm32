@@ -55,6 +55,9 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 
+void Mjerenje_Vrijednosti();
+void Zalij_Ako_Je_Suho();
+
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
