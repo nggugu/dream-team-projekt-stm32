@@ -30,6 +30,8 @@ extern "C" {
 
 /* USER CODE BEGIN Includes */
 
+#include "gpio.h"
+
 /* USER CODE END Includes */
 
 extern TIM_HandleTypeDef htim2;

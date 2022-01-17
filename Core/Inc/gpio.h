@@ -35,6 +35,7 @@ extern "C" {
 /* USER CODE BEGIN Private defines */
 
 #define PUMP_PinNumber	GPIO_PIN_2
+#define LED_PinNumber	GPIO_PIN_13
 
 /* USER CODE END Private defines */
 
@@ -43,6 +44,7 @@ void MX_GPIO_Init(void);
 /* USER CODE BEGIN Prototypes */
 
 void gpio_pump_state(uint8_t state);
+void led_inverse();
 
 /* USER CODE END Prototypes */
 

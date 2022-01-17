@@ -115,10 +115,11 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	if(htim->Instance == TIM2){
 		timer2_Ticks_Millisec++;
-		if(timer2_Ticks_Millisec == TIME_5_MIN){  // ovdje se bira hoce li se mjeriti svakih 2,5, ili 30 min
+		if(timer2_Ticks_Millisec == TIME_2_MIN){  // ovdje se bira hoce li se mjeriti svakih 2,5, ili 30 min
 			timer2_Ticks_Millisec = 0;
 			Mjerenje_Vrijednosti();
 			Zalij_Ako_Je_Suho();
+			//led_inverse();  Dodano radi provjere funkcionalnosti , gasi pali ledicu PG13 svakih 2,5, ili 30 min
 		}
 	}
 }

@@ -23,6 +23,8 @@
 
 /* USER CODE BEGIN 0 */
 
+uint8_t flag=0; // zastavica sluzi za provjeru ispravnosti brojanja vremena u kombinaciji sa ledicom PG13
+
 /* USER CODE END 0 */
 
 /*----------------------------------------------------------------------------*/
@@ -72,6 +74,17 @@ void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 2 */
+
+void led_inverse(){
+	flag^=1;
+
+	GPIO_PinState pinState;
+
+	pinState = (flag == 1)? GPIO_PIN_SET : GPIO_PIN_RESET;
+
+	HAL_GPIO_WritePin(GPIOG, LED_PinNumber , pinState);
+}
+
 
 void gpio_pump_state(uint8_t state){
 
