@@ -34,10 +34,14 @@ extern "C" {
 
 /* USER CODE END Includes */
 
+extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
+
+extern volatile uint8_t MJERI;
 
 /* USER CODE BEGIN Private defines */
 
+#define TIME_30_SEC  30000
 #define TIME_2_MIN	 120000
 #define TIME_5_MIN	 300000
 #define TIME_30_MIN	 1800000
@@ -46,6 +50,7 @@ extern uint32_t timer2_Ticks_Millisec;
 
 /* USER CODE END Private defines */
 
+void MX_TIM1_Init(void);
 void MX_TIM2_Init(void);
 
 /* USER CODE BEGIN Prototypes */

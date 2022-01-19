@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "hcsr04.h"
 #include "wifi.h"
 #include "bme280.h"
 #include "sh.h"
@@ -51,8 +52,13 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-SH acc;
+SH senzor_tlo;
 uint8_t errNum = 0;
+BME280 senzor_zrak;
+uint8_t errors = 0;
+int8_t err = 0;
+
+volatile uint8_t MJERI;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -98,29 +104,51 @@ int main(void)
   MX_I2C3_Init();
   MX_ADC3_Init();
   MX_TIM2_Init();
-  HAL_TIM_Base_Start_IT(&htim2);
+  MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
+  HAL_TIM_IC_Start_IT(&htim1, TIM_CHANNEL_1);
+  HAL_TIM_Base_Start_IT(&htim2);
 
-  // uint8_t err = WIFI_Init("", "");
-  // uint8_t res = WIFI_SendRequestWithParams("ekantica.herokuapp.com", "/data", 20, 100, 100, 100);
+  errors =  BME280_Initialise(&senzor_zrak, &hi2c3);
 
-  /* Initialise BME280 sensor*/
+    if(errors != 0)
+    {
+  	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
+  	  while(1);
+    }
 
-  /* Initialise soil humidity sensor */
-  // SH_init(&acc, &hadc3);
-  /* USER CODE END 2 */
+    err = WIFI_Init("pelence", "fscj5081");
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-	  // errNum = SH_ReadData(&acc);
-	  // HAL_Delay(500);
-    /* USER CODE END WHILE */
+    if(err != 0)
+    {
+  	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
+  	  while(1);
+    }
 
-    /* USER CODE BEGIN 3 */
-  }
-  /* USER CODE END 3 */
+    errors = BME280_PerformMeasurements(&senzor_zrak);
+
+    if(errors != 0)
+    {
+  	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
+  	  while(1);
+    }
+
+    SH_init(&senzor_tlo, &hadc3);
+
+    /* USER CODE END 2 */
+
+    /* Infinite loop */
+    /* USER CODE BEGIN WHILE */
+
+    // wait for 2 minutes, perform measurements, send them to server, water the plant
+    while (1)
+    {
+    	if (MJERI == 1) {
+    		Mjerenje_Vrijednosti();
+    		MJERI = 0;
+    	}
+
+    }
 }
 
 /**
@@ -169,7 +197,61 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 
 void Mjerenje_Vrijednosti(){
+	/*
+	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
+	  HAL_Delay(500);
+	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_RESET);
+	  */
+	  err = BME280_ReadData(&senzor_zrak);
 
+	 if(err != HAL_OK)
+	  {
+		  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
+		  while(1);
+	  }
+
+	  errors = SH_ReadData(&senzor_tlo);
+	  if(errors != 0)
+	  {
+		  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
+		  while(1);
+	  }
+
+	  HCSR04_Read();
+	  HAL_Delay(500);
+
+
+
+    // ne brisati timer jer ce hsr04 mozda poslati staru vrijednost
+	  /*
+	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
+	  HAL_Delay(5000);
+	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_RESET);
+	  HAL_Delay(500);
+	  */
+
+	  int8_t val = WIFI_SendRequestWithParams("ekantica.herokuapp.com", "/data",(double) senzor_zrak.temp, (double) senzor_zrak.hum, (double)senzor_tlo.soilHumidity, (double) Distance);
+
+	  if(val == 0)
+	  {
+	  	  // ne treba zaliti; LUKA nadopisi
+
+
+	  }
+	  else if(val == 1)
+	  {
+		  gpio_pump_state(1);
+		  timer2_wait_millisec(PUMP_WORKING_TIME);
+		  gpio_pump_state(0);
+	  }
+	  else
+	  {
+		//error; kratak blink nakon errora
+	  	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
+	  	  HAL_Delay(500);
+	  	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_RESET);
+	  	  HAL_Delay(1000);
+	  }
 }
 
 void Zalij_Ako_Je_Suho(){
