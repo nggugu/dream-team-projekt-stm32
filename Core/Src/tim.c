@@ -21,7 +21,7 @@
 #include "tim.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "main.h"
 uint32_t timer2_Ticks_Millisec;
 
 /* USER CODE END 0 */

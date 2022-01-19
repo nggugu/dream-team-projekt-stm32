@@ -58,13 +58,13 @@ BME280 senzor_zrak;
 uint8_t errors = 0;
 int8_t err = 0;
 
-volatile uint8_t MJERI;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
+void Mjerenje_Vrijednosti();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -107,7 +107,7 @@ int main(void)
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_IC_Start_IT(&htim1, TIM_CHANNEL_1);
-  HAL_TIM_Base_Start_IT(&htim2);
+
 
   errors =  BME280_Initialise(&senzor_zrak, &hi2c3);
 
@@ -117,7 +117,7 @@ int main(void)
   	  while(1);
     }
 
-    err = WIFI_Init("pelence", "fscj5081");
+    err = WIFI_Init("GuguNet", "ngub4429");
 
     if(err != 0)
     {
@@ -127,6 +127,12 @@ int main(void)
 
     errors = BME280_PerformMeasurements(&senzor_zrak);
 
+    for (int i = 0; i <= 4; i++) {
+    	BME280_ReadData(&senzor_zrak);
+    	BME280_PerformMeasurements(&senzor_zrak);
+    	HAL_Delay(12);
+    }
+
     if(errors != 0)
     {
   	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
@@ -134,21 +140,24 @@ int main(void)
     }
 
     SH_init(&senzor_tlo, &hadc3);
+    HAL_TIM_Base_Start_IT(&htim2);
 
-    /* USER CODE END 2 */
+  /* USER CODE END 2 */
 
-    /* Infinite loop */
-    /* USER CODE BEGIN WHILE */
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+	  if (MJERI == 1) {
+	      		Mjerenje_Vrijednosti();
+	      		MJERI = 0;
+	      		HAL_TIM_Base_Start_IT(&htim2);
+	  }
+    /* USER CODE END WHILE */
 
-    // wait for 2 minutes, perform measurements, send them to server, water the plant
-    while (1)
-    {
-    	if (MJERI == 1) {
-    		Mjerenje_Vrijednosti();
-    		MJERI = 0;
-    	}
-
-    }
+    /* USER CODE BEGIN 3 */
+  }
+  /* USER CODE END 3 */
 }
 
 /**
@@ -202,6 +211,8 @@ void Mjerenje_Vrijednosti(){
 	  HAL_Delay(500);
 	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_RESET);
 	  */
+	BME280_PerformMeasurements(&senzor_zrak);
+	HAL_Delay(12);
 	  err = BME280_ReadData(&senzor_zrak);
 
 	 if(err != HAL_OK)
@@ -252,10 +263,6 @@ void Mjerenje_Vrijednosti(){
 	  	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_RESET);
 	  	  HAL_Delay(1000);
 	  }
-}
-
-void Zalij_Ako_Je_Suho(){
-
 }
 
 /* USER CODE END 4 */

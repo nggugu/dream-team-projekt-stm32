@@ -62,7 +62,7 @@ void Zalij_Ako_Je_Suho();
 
 /* Private defines -----------------------------------------------------------*/
 /* USER CODE BEGIN Private defines */
-
+volatile uint8_t MJERI;
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

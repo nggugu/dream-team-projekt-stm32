@@ -37,8 +37,6 @@ extern "C" {
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
 
-extern volatile uint8_t MJERI;
-
 /* USER CODE BEGIN Private defines */
 
 #define TIME_30_SEC  30000
