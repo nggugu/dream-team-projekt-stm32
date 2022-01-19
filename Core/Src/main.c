@@ -241,7 +241,7 @@ void Mjerenje_Vrijednosti(){
 	  HAL_Delay(500);
 	  */
 
-	  int8_t val = WIFI_SendRequestWithParams("ekantica.herokuapp.com", "/data",(double) senzor_zrak.temp, (double) senzor_zrak.hum, (double)senzor_tlo.soilHumidity, (double) Distance);
+	  int8_t val = WIFI_SendRequestWithParams("ekantica.herokuapp.com", "/data",(double) senzor_zrak.temp, (double) senzor_zrak.hum, (double)senzor_tlo.soilHumidity, (double) Percentage);
 
 	  if(val == 0)
 	  {
