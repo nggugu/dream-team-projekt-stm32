@@ -5,6 +5,9 @@
 #define TRIG_PIN	GPIO_PIN_8
 #define TRIG_PORT	GPIOE
 
+#define MAX_LEVEL	2
+#define MIN_LEVEL	11
+
 #include "main.h"
 
 extern uint32_t IC_Val1;
@@ -12,6 +15,7 @@ extern uint32_t IC_Val2;
 extern uint32_t Difference;
 extern uint8_t Is_First_Captured;
 extern uint8_t Distance;
+extern double Percentage;
 
 void delay(uint16_t time);
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim);

@@ -7,6 +7,7 @@ uint32_t IC_Val2 = 0;
 uint32_t Difference = 0;
 uint8_t Is_First_Captured = 0;
 uint8_t Distance  = 0;
+double Percentage = 0;
 
 void delay(uint16_t time){
 	__HAL_TIM_SET_COUNTER(&htim1, 0);
@@ -41,6 +42,14 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
 
 			Distance = Difference * .034/2;
 			Is_First_Captured = 0; // set it back to false
+
+			if (Distance <= MAX_LEVEL) {
+				Percentage = 100.0;
+			} else if (Distance >= MIN_LEVEL) {
+				Percentage = 0.0;
+			} else {
+				Percentage = ((1.0 / 9.0)*((double) Distance) - (2.0 / 9.0)) * 100;
+			}
 
 			// set polarity to rising edge
 			__HAL_TIM_SET_CAPTUREPOLARITY(htim, TIM_CHANNEL_1, TIM_INPUTCHANNELPOLARITY_RISING);
