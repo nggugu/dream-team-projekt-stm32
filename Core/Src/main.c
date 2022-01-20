@@ -108,39 +108,70 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_TIM_IC_Start_IT(&htim1, TIM_CHANNEL_1);
 
-
+  /*
+   * INICIJALIZACIJA SENZORA ZA ZRAK I PROVJERA USPJESNOSTI
+   */
   errors =  BME280_Initialise(&senzor_zrak, &hi2c3);
-
-    if(errors != 0)
-    {
-  	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
+  if(errors != 0) {
+	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
   	  while(1);
-    }
+  }
 
-    err = WIFI_Init("GuguNet", "ngub4429");
-
-    if(err != 0)
-    {
-  	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
+  /*
+   * SPAJANJE ESP-A I PROVJERA USPJESNOSTI
+   */
+  err = WIFI_Init("GuguNet", "ngub4429");
+  if(err != 0) {
+	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
   	  while(1);
-    }
+  }
 
-    errors = BME280_PerformMeasurements(&senzor_zrak);
-
-    for (int i = 0; i <= 4; i++) {
-    	BME280_ReadData(&senzor_zrak);
-    	BME280_PerformMeasurements(&senzor_zrak);
-    	HAL_Delay(12);
-    }
-
-    if(errors != 0)
-    {
-  	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
+  /*
+   * PROVJERA ISPRAVNOSTI MJERENJA SENZORA ZA ZRAK
+   */
+  errors = BME280_PerformMeasurements(&senzor_zrak);
+  if(errors != 0) {
+	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
   	  while(1);
-    }
+  }
 
-    SH_init(&senzor_tlo, &hadc3);
-    HAL_TIM_Base_Start_IT(&htim2);
+  /*
+   * POCETNA MJERENJA SENZORA ZA ZRAK U SVRHU KALIBRACIJE
+   */
+  for (int i = 0; i <= 4; i++) {
+	  BME280_ReadData(&senzor_zrak);
+	  BME280_PerformMeasurements(&senzor_zrak);
+  }
+
+  /*
+   * INICIJALIZACIJA SENZORA ZA TLO
+   */
+  SH_init(&senzor_tlo, &hadc3);
+
+  /*
+   * POCETNA MJERENJA ZA TLO
+   */
+  errors = SH_ReadData(&senzor_tlo);
+  if(errors != 0) {
+	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
+	  while(1);
+  }
+
+  /*
+   * POCETNA MJERENJA RAZINE VODE
+   */
+  HCSR04_Read();
+  HAL_Delay(500);
+
+  /*
+   * SLANJE POCETNIH MJERENJA NA SERVER
+   */
+  WIFI_SendRequestWithParams("ekantica.herokuapp.com", "/data",(double) senzor_zrak.temp, (double) senzor_zrak.hum, (double)senzor_tlo.soilHumidity, (double) Percentage);
+
+  /*
+   * POKRETANJE TIMERA
+   */
+  HAL_TIM_Base_Start_IT(&htim2);
 
   /* USER CODE END 2 */
 
@@ -211,25 +242,31 @@ void Mjerenje_Vrijednosti(){
 	  HAL_Delay(500);
 	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_RESET);
 	  */
+
+	/*
+	 * MJERENJA ZA ZRAK
+	 */
 	BME280_PerformMeasurements(&senzor_zrak);
-	HAL_Delay(12);
-	  err = BME280_ReadData(&senzor_zrak);
+	err = BME280_ReadData(&senzor_zrak);
+	if(err != HAL_OK) {
+		HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
+		while(1);
+	}
 
-	 if(err != HAL_OK)
-	  {
-		  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
-		  while(1);
-	  }
+	/*
+	 * MJERENJA ZA TLO
+	 */
+	errors = SH_ReadData(&senzor_tlo);
+	if(errors != 0) {
+		HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
+		while(1);
+	}
 
-	  errors = SH_ReadData(&senzor_tlo);
-	  if(errors != 0)
-	  {
-		  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
-		  while(1);
-	  }
-
-	  HCSR04_Read();
-	  HAL_Delay(500);
+	/*
+	 * MJERENJA RAZINE VODE
+	 */
+	HCSR04_Read();
+	HAL_Delay(500);
 
 
 
@@ -241,28 +278,24 @@ void Mjerenje_Vrijednosti(){
 	  HAL_Delay(500);
 	  */
 
-	  int8_t val = WIFI_SendRequestWithParams("ekantica.herokuapp.com", "/data",(double) senzor_zrak.temp, (double) senzor_zrak.hum, (double)senzor_tlo.soilHumidity, (double) Percentage);
+	/*
+	 * SLANJE PODATAKA NA SERVER
+	 */
+	int8_t val = WIFI_SendRequestWithParams("ekantica.herokuapp.com", "/data",(double) senzor_zrak.temp, (double) senzor_zrak.hum, (double)senzor_tlo.soilHumidity, (double) Percentage);
 
-	  if(val == 0)
-	  {
-	  	  // ne treba zaliti; LUKA nadopisi
+	if(val == 0) {
 
-
-	  }
-	  else if(val == 1)
-	  {
-		  gpio_pump_state(1);
-		  timer2_wait_millisec(PUMP_WORKING_TIME);
-		  gpio_pump_state(0);
-	  }
-	  else
-	  {
+	} else if(val == 1) {
+		gpio_pump_state(1);
+		timer2_wait_millisec(PUMP_WORKING_TIME);
+		gpio_pump_state(0);
+	} else {
 		//error; kratak blink nakon errora
-	  	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
-	  	  HAL_Delay(500);
-	  	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_RESET);
-	  	  HAL_Delay(1000);
-	  }
+		HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
+		HAL_Delay(500);
+		HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_RESET);
+		HAL_Delay(1000);
+	}
 }
 
 /* USER CODE END 4 */
