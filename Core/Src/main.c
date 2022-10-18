@@ -58,7 +58,7 @@ BME280 senzor_zrak;
 uint8_t errors = 0;
 int8_t err = 0;
 
-
+volatile uint8_t MJERI;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -114,16 +114,16 @@ int main(void)
   errors =  BME280_Initialise(&senzor_zrak, &hi2c3);
   if(errors != 0) {
 	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
-  	  while(1);
+  	 // while(1);
   }
 
   /*
    * SPAJANJE ESP-A I PROVJERA USPJESNOSTI
    */
-  err = WIFI_Init("GuguNet", "ngub4429");
+  err = WIFI_Init("realme_7_Pro", "877b67384d11");
   if(err != 0) {
 	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
-  	  while(1);
+  	  // while(1);
   }
 
   /*
@@ -132,7 +132,7 @@ int main(void)
   errors = BME280_PerformMeasurements(&senzor_zrak);
   if(errors != 0) {
 	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
-  	  while(1);
+  	  // while(1);
   }
 
   /*
