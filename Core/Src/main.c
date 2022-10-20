@@ -120,7 +120,7 @@ int main(void)
   /*
    * SPAJANJE ESP-A I PROVJERA USPJESNOSTI
    */
-  err = WIFI_Init("realme_7_Pro", "877b67384d11");
+  err = WIFI_Init("AndroidAP1", "moaa3738");
   if(err != 0) {
 	  HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
   	  // while(1);
@@ -166,7 +166,7 @@ int main(void)
   /*
    * SLANJE POCETNIH MJERENJA NA SERVER
    */
-  WIFI_SendRequestWithParams("ekantica.herokuapp.com", "/data",(double) senzor_zrak.temp, (double) senzor_zrak.hum, (double)senzor_tlo.soilHumidity, (double) Percentage);
+  WIFI_SendRequestWithParams("ekantica.herokuapp.com", "/data",(double)25.0, (double)60.0, (double)senzor_tlo.soilHumidity, (double) Percentage);
 
   /*
    * POKRETANJE TIMERA
@@ -250,7 +250,7 @@ void Mjerenje_Vrijednosti(){
 	err = BME280_ReadData(&senzor_zrak);
 	if(err != HAL_OK) {
 		HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
-		while(1);
+		// while(1);
 	}
 
 	/*
@@ -259,7 +259,7 @@ void Mjerenje_Vrijednosti(){
 	errors = SH_ReadData(&senzor_tlo);
 	if(errors != 0) {
 		HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_SET);
-		while(1);
+		// while(1);
 	}
 
 	/*
@@ -281,7 +281,7 @@ void Mjerenje_Vrijednosti(){
 	/*
 	 * SLANJE PODATAKA NA SERVER
 	 */
-	int8_t val = WIFI_SendRequestWithParams("ekantica.herokuapp.com", "/data",(double) senzor_zrak.temp, (double) senzor_zrak.hum, (double)senzor_tlo.soilHumidity, (double) Percentage);
+	int8_t val = WIFI_SendRequestWithParams("ekantica.herokuapp.com", "/data",(double) 25.0, (double) 60.0, (double)senzor_tlo.soilHumidity, (double) Percentage);
 
 	if(val == 0) {
 
