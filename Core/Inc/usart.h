@@ -35,7 +35,7 @@ extern "C" {
 extern UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN Private defines */
-#define BUFSIZE 512
+#define BUFSIZE 1024
 /* USER CODE END Private defines */
 
 void MX_USART1_UART_Init(void);
