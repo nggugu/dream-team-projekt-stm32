@@ -166,7 +166,7 @@ int main(void)
   /*
    * SLANJE POCETNIH MJERENJA NA SERVER
    */
-  WIFI_SendRequestWithParams("ekantica.herokuapp.com", "/data",(double)25.0, (double)60.0, (double)senzor_tlo.soilHumidity, (double) Percentage);
+  WIFI_SendRequestWithParams("ekantica.herokuapp.com", "/data",(double) 25.0, (double) senzor_tlo.soilHumidity, (double) 60.0, (double) Percentage);
 
   /*
    * POKRETANJE TIMERA
@@ -281,11 +281,11 @@ void Mjerenje_Vrijednosti(){
 	/*
 	 * SLANJE PODATAKA NA SERVER
 	 */
-	int8_t val = WIFI_SendRequestWithParams("ekantica.herokuapp.com", "/data",(double) 25.0, (double) 60.0, (double)senzor_tlo.soilHumidity, (double) Percentage);
+	int8_t val = WIFI_SendRequestWithParams("ekantica.herokuapp.com", "/data",(double) 25.0, (double) senzor_tlo.soilHumidity, (double) 60.0, (double) Percentage);
 
-	if(val == 0) {
+	 if(val == 0) {
 
-	} else if(val == 1) {
+	 } else if(val == 1) {
 		gpio_pump_state(1);
 		timer2_wait_millisec(PUMP_WORKING_TIME);
 		gpio_pump_state(0);
@@ -295,7 +295,7 @@ void Mjerenje_Vrijednosti(){
 		HAL_Delay(500);
 		HAL_GPIO_WritePin(GPIOG,GPIO_PIN_13,GPIO_PIN_RESET);
 		HAL_Delay(1000);
-	}
+	 }
 }
 
 /* USER CODE END 4 */
