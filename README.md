@@ -75,8 +75,11 @@ Pinove je potrebno spojiti na sljedeći način:
 | 7 | PB7 |
 
 Upute koji firmware preuzeti: https://docs.espressif.com/projects/esp-at/en/latest/esp32/Compile_and_Develop/How_to_download_the_latest_temporary_version_of_AT_from_github.html
+<br>
 <b>Napomena:</b> ne pratiti upute do kraja, nego otvoriti PRVI, najnoviji branch, i na dnu njega naći u Artefacts:<i> esp32c3-mini-1-at</i>. Kliknuti na taj artefakt, i to će pokrenuti preuzimanje. 
+<br>
 Program i za uploadanje firmwarea na pločicu: https://docs.espressif.com/projects/esp-at/en/latest/esp32/Get_Started/Downloading_guide.html
+<br>
 Potrebno je flashati bootloader na pločicu.
 
 ## Korisni linkovi
