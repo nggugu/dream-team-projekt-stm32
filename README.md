@@ -65,7 +65,20 @@ Pinove je potrebno spojiti na sljedeći način:
 <i><b>Napomena:</b> ESP nema mogućnost spajanja na eduroam mrežu s trenutnim firmware-om. Ako radite na faksu, najbolje je spojiti se na AP od mobitela.</i>
 
 2. Za slanje podataka na server koristiti funkciju: `int8_t WIFI_SendRequestWithParams(char *hostname, char *path, double temp, double moisture, double humidity, double waterLevel)` Hostname servera je ekantica.herokuapp.com, bez sheme na početku (http:// ili https://). Path za slanje podataka je /data. Ostali parametri su vrijednosti očitanja senzora koje se žele poslati, a prilikom slanja zahtjeva odrežu im se decimale (trebalo bi biti zaokruživanje na 2 decimale ali to još nije implementirano na serveru). Funkcija na temelju odgovora servera vraća 0 ako nije potrebno uključiti pumpu, a 1 ako jest. Ako je došlo do pogreške, povratna vrijednost je -1.
-  
+ 
+### Korištenje ESP32 modula
+Pinove je potrebno spojiti na sljedeći način:
+| ESP-01 | STM32F429IDISCOVERY |
+|:-:|:-:|
+| GND | GND |
+| 6 | PB6 |
+| 7 | PB7 |
+
+Upute koji firmware preuzeti: https://docs.espressif.com/projects/esp-at/en/latest/esp32/Compile_and_Develop/How_to_download_the_latest_temporary_version_of_AT_from_github.html
+<b>Napomena:</b> ne pratiti upute do kraja, nego otvoriti PRVI, najnoviji branch, i na dnu njega naći u Artefacts:<i> esp32c3-mini-1-at</i>. Kliknuti na taj artefakt, i to će pokrenuti preuzimanje. 
+Program i za uploadanje firmwarea na pločicu: https://docs.espressif.com/projects/esp-at/en/latest/esp32/Get_Started/Downloading_guide.html
+Potrebno je flashati bootloader na pločicu.
+
 ## Korisni linkovi
 I2C komunikacija na STM32: https://www.youtube.com/watch?v=cvmQNTVJrzs <br>
 Pisanje drivera: https://www.youtube.com/watch?v=_JQAve05o_0 <br>
